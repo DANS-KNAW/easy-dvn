@@ -42,12 +42,8 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
        |""".stripMargin)
   //val url = opt[String]("someOption", noshort = true, descr = "Description of the option", default = app.someProperty)
 
-  val runService = new Subcommand("run-service") {
-    descr(
-      "Starts EASY Dvn as a daemon that services HTTP requests")
-    footer(SUBCOMMAND_SEPARATOR)
-  }
-  addSubcommand(runService)
+  val subcommand1 = new Subcommand()
+
 
   footer("")
 }

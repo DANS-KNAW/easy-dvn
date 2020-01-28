@@ -20,8 +20,7 @@ import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.language.reflectiveCalls
-import scala.util.control.NonFatal
-import scala.util.{ Failure, Try }
+import scala.util.Try
 
 object Command extends App with DebugEnhancedLogging {
   type FeedBackMessage = String
@@ -32,34 +31,15 @@ object Command extends App with DebugEnhancedLogging {
   }
   val app = new EasyDvnApp(configuration)
 
-  runSubcommand(app)
-    .doIfSuccess(msg => println(s"OK: $msg"))
-    .doIfFailure { case e => logger.error(e.getMessage, e) }
-    .doIfFailure { case NonFatal(e) => println(s"FAILED: ${ e.getMessage }") }
-
-  private def runSubcommand(app: EasyDvnApp): Try[FeedBackMessage] = {
-    commandLine.subcommand
-      .collect {
-//      case subcommand1 @ subcommand.subcommand1 => // handle subcommand1
-//      case None => // handle command line without subcommands
-        case commandLine.runService => runAsService(app)
-      }
-      .getOrElse(Failure(new IllegalArgumentException(s"Unknown command: ${ commandLine.subcommand }")))
+  val result: Try[FeedBackMessage] = commandLine.subcommands match {
+    case commandLine.subcommand1 => ???
   }
 
-  private def runAsService(app: EasyDvnApp): Try[FeedBackMessage] = Try {
-    val service = new EasyDvnService(configuration.serverPort, Map(
-      "/" -> new EasyDvnServlet(app, configuration.version),
-    ))
-    Runtime.getRuntime.addShutdownHook(new Thread("service-shutdown") {
-      override def run(): Unit = {
-        service.stop()
-        service.destroy()
-      }
-    })
-
-    service.start()
-    Thread.currentThread.join()
-    "Service terminated normally."
-  }
+  result.doIfSuccess(msg => Console.err.println(s"OK: $msg"))
+    .doIfFailure { case t =>
+      Console.err.println(s"ERROR: ${ t.getClass.getSimpleName }: ${ t.getMessage }")
+      logger.error("A fatal exception occurred", t)
+      System.exit(1)
+    }
 }
+
