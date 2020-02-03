@@ -15,6 +15,14 @@
  */
 package nl.knaw.dans.easy
 
+import java.net.URI
+
+import scala.util.Try
+
 package object dvn {
+
+  case class CommandFailedException(status: Int, msg: String, body: String) extends Exception(s"Command could not be executed. Server returned: $msg")
+
+
 
 }

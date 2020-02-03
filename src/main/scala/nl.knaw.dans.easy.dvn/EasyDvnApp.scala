@@ -15,10 +15,11 @@
  */
 package nl.knaw.dans.easy.dvn
 
-import scala.util.{ Success, Try }
-
 class EasyDvnApp(configuration: Configuration)  {
 
+  def dataverse(): Dataverse = {
+    new Dataverse(configuration)
+  }
 
 
 }

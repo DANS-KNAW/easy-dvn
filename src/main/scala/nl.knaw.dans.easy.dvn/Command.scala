@@ -26,20 +26,47 @@ object Command extends App with DebugEnhancedLogging {
   type FeedBackMessage = String
 
   val configuration = Configuration(File(System.getProperty("app.home")))
+  logger.info(s"Read configuration: $configuration")
   val commandLine: CommandLineOptions = new CommandLineOptions(args, configuration) {
     verify()
   }
   val app = new EasyDvnApp(configuration)
 
   val result: Try[FeedBackMessage] = commandLine.subcommands match {
-    case commandLine.subcommand1 => ???
+    case commandLine.dataverse :: (create @ commandLine.dataverse.create) :: Nil =>
+      app dataverse() create(create.parent(), File(create.json().getAbsolutePath))
+    case commandLine.dataverse :: (view @ commandLine.dataverse.view) :: Nil =>
+      app dataverse() view (view.id())
+    case commandLine.dataverse :: (delete @ commandLine.dataverse.delete) :: Nil =>
+      app dataverse() delete (delete.id())
+    case commandLine.dataverse :: (show @ commandLine.dataverse.show) :: Nil =>
+      app dataverse() show (show.id())
+    case commandLine.dataverse :: (listRoles @ commandLine.dataverse.listRoles) :: Nil =>
+      app dataverse() listRoles (listRoles.id())
+    case commandLine.dataverse :: (listFacets @ commandLine.dataverse.listFacets) :: Nil =>
+      app dataverse() listFacets (listFacets.id())
+    case commandLine.dataverse :: (setFacets @ commandLine.dataverse.setFacets) :: Nil =>
+      app dataverse() setFacets(setFacets.id(), setFacets.facets())
+    case commandLine.dataverse :: (createRole @ commandLine.dataverse.createRole) :: Nil =>
+      app dataverse() createRole(createRole.id(), File(createRole.json().getAbsolutePath))
+    case commandLine.dataverse :: (listAssignments @ commandLine.dataverse.listAssignments) :: Nil =>
+      app dataverse() listRoleAssignments(listAssignments.id())
+    case commandLine.dataverse :: (setDefaultRole @ commandLine.dataverse.setDefaultRole) :: Nil =>
+      app dataverse() setDefaultRole(setDefaultRole.id(), setDefaultRole.role())
+
+
   }
 
   result.doIfSuccess(msg => Console.err.println(s"OK: $msg"))
-    .doIfFailure { case t =>
-      Console.err.println(s"ERROR: ${ t.getClass.getSimpleName }: ${ t.getMessage }")
-      logger.error("A fatal exception occurred", t)
-      System.exit(1)
+    .doIfFailure {
+      case cfe: CommandFailedException =>
+        Console.err.println(s"ERROR: ${ cfe.getMessage }")
+        logger.error(s"Status line: ${ cfe.msg }. Body: ${ cfe.body }")
+        System.exit(1)
+      case t =>
+        Console.err.println(s"ERROR: ${ t.getClass.getSimpleName }: ${ t.getMessage }")
+        logger.error("A fatal exception occurred", t)
+        System.exit(1)
     }
 }
 

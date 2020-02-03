@@ -1,15 +1,20 @@
 easy-dvn
 ===========
-[![Build Status](https://travis-ci.org/DANS-KNAW/easy-dvn.png?branch=master)](https://travis-ci.org/DANS-KNAW/easy-dvn)
-
-<!-- Remove this comment and extend the descriptions below -->
-
 
 SYNOPSIS
 --------
 
-    easy-dvn (synopsis of command line parameters)
-    easy-dvn (... possibly multiple lines for subcommands)
+    easy-dvn dataverse {
+                  create --parent <id> --json <json-definition-file> 
+                | view <id>
+                | delete [-f, --force]
+             }
+    easy-dvn dataset {
+    
+             } 
+    easy-dvn file {
+    
+             }
 
 
 DESCRIPTION
@@ -24,10 +29,15 @@ ARGUMENTS
     Options:
 
        -h, --help      Show help message
-       -v, --version   Show version of this program
-
-    Subcommand: run-service - Starts EASY Dvn as a daemon that services HTTP requests
-       -h, --help   Show help message
+           -v, --version   Show version of this program
+       
+       Subcommand: dataverse - Operations on a dataverse
+           -h, --help   Show help message
+       
+       Subcommand: dataverse create - Creates a dataverse
+           -j, --json  <arg>     JSON file containing the properties of the new dataverse
+           -p, --parent  <arg>   ID of parent dataverse
+           -h, --help            Show help message
     ---
 
 EXAMPLES

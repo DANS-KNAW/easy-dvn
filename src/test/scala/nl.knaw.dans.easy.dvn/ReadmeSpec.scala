@@ -16,6 +16,7 @@
 package nl.knaw.dans.easy.dvn
 
 import java.io.ByteArrayOutputStream
+import java.net.URI
 
 import better.files.File
 import org.scalatest._
@@ -24,7 +25,11 @@ class ReadmeSpec extends FlatSpec with Matchers with CustomMatchers {
 
   private val configuration = Configuration(
     version = "my-version",
-    serverPort = 12345,
+    apiToken = "dummy",
+    baseUrl = new URI("http://dummy"),
+    apiVersion = "1",
+    connectionTimeout = 3000,
+    readTimeout = 3000
   )
   private val clo = new CommandLineOptions(Array[String](), configuration) {
     // avoids System.exit() in case of invalid arguments or "--help"

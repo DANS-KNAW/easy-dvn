@@ -15,14 +15,22 @@
  */
 package nl.knaw.dans.easy.dvn
 
+import java.net.URI
+
 import better.files.File
 import better.files.File.root
 import org.apache.commons.configuration.PropertiesConfiguration
 
 case class Configuration(version: String,
-                         serverPort: Int,
-                         // other configuration properties defined in application.properties
-                        )
+                         apiToken: String,
+                         baseUrl: URI,
+                         apiVersion: String,
+                         connectionTimeout: Int,
+                         readTimeout: Int) {
+  override def toString: String = {
+    s"[version = $version, apiToken = $apiToken, baseUrl = $baseUrl, apiVersion = $apiVersion]"
+  }
+}
 
 object Configuration {
 
@@ -39,8 +47,10 @@ object Configuration {
 
     new Configuration(
       version = (home / "bin" / "version").contentAsString.stripLineEnd,
-      serverPort = properties.getInt("daemon.http.port"),
-      // read other properties defined in application.properties
-    )
+      apiToken = properties.getString("dvn.api-token"),
+      baseUrl = new URI(properties.getString("dvn.base-url")),
+      apiVersion = properties.getString("dvn.api.version"),
+      connectionTimeout = properties.getInt("dvn.api.connection-timout-ms"),
+      readTimeout = properties.getInt("dvn.api.read-timeout-ms"))
   }
 }
