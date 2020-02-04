@@ -20,111 +20,159 @@ import java.nio.charset.StandardCharsets
 
 import better.files.File
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import org.apache.commons.io.{ FileUtils, IOUtils }
+import org.apache.commons.io.FileUtils
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.Try
 
-class Dataverse(configuration: Configuration) extends HttpSupport with DebugEnhancedLogging {
+class Dataverse(dvId: String, configuration: Configuration) extends HttpSupport with DebugEnhancedLogging {
+  trace(dvId)
   protected val connectionTimeout: Int = configuration.connectionTimeout
   protected val readTimeout: Int = configuration.readTimeout
   protected val baseUrl: URI = configuration.baseUrl
   protected val apiToken: String = configuration.apiToken
 
+
   /*
    * Helpers
    */
-  private def get(id: String, subPath: String = null): Try[String] = {
+  private def get(subPath: String = null): Try[String] = {
     for {
-      uri <- uri(s"api/v${ configuration.apiVersion }/dataverses/$id/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v${ configuration.apiVersion }/dataverses/$dvId/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
-      response <- http("GET", uri, body = null , Map("X-Dataverse-key"-> apiToken))
+      response <- http("GET", uri, body = null, Map("X-Dataverse-key" -> apiToken))
       body <- handleResponse(response, 200)
       prettyJson <- prettyPrintJson(new String(body))
     } yield prettyJson
   }
 
-  private def postJson(id: String, subPath: String = null)(expectedStatus: Int = 201)(body: String = null): Try[String] = {
+  private def postJson(subPath: String = null)(expectedStatus: Int = 201)(body: String = null): Try[String] = {
     for {
-      uri <- uri(s"api/v${ configuration.apiVersion }/dataverses/$id/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v${ configuration.apiVersion }/dataverses/$dvId/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
-      response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key"-> apiToken))
+      response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, expectedStatus)
     } yield s"Successfully POSTed: $body"
   }
 
-  private def put(id: String, subPath: String = null): Try[String] = {
+  private def put(subPath: String = null)(body: String = null): Try[String] = {
     for {
-      uri <- uri(s"api/v${ configuration.apiVersion }/dataverses/$id/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v${ configuration.apiVersion }/dataverses/$dvId/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
-      response <- http("PUT", uri, null, Map("X-Dataverse-key"-> apiToken))
+      response <- http("PUT", uri, body, Map("X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, 200)
     } yield s"Successfully PUT to $uri"
-
   }
 
-  private def deleteUri(id: String, subPath: String = null): Try[String] = {
+  private def deletePath(subPath: String = null): Try[String] = {
     for {
-      uri <- uri(s"api/v${ configuration.apiVersion }/dataverses/$id/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v${ configuration.apiVersion }/dataverses/$dvId/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
-      response <- http("DELETE", uri, null,  Map("X-Dataverse-key"-> apiToken))
+      response <- http("DELETE", uri, null, Map("X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, 200)
     } yield s"Successfully DELETED: $uri"
   }
 
   private def tryReadFileToString(file: File): Try[String] = Try {
-     FileUtils.readFileToString(file.toJava, StandardCharsets.UTF_8)
+    FileUtils.readFileToString(file.toJava, StandardCharsets.UTF_8)
   }
 
   /*
    * Operations
    */
-  def create(parentId: String, jsonDef: File): Try[String] = {
+  def create(jsonDef: File): Try[String] = {
     trace(jsonDef)
-    tryReadFileToString(jsonDef).flatMap(postJson(parentId)(201))
+    tryReadFileToString(jsonDef).flatMap(postJson()(201))
   }
 
-  def view(id: String): Try[String] = {
-    trace(id)
-    get(id)
+  def view(): Try[String] = {
+    trace(())
+    get()
   }
 
-  def delete(id: String): Try[String] = {
-    trace(id)
-    deleteUri(id)
+  def delete(): Try[String] = {
+    trace(())
+    deletePath()
   }
 
-  def show(id: String): Try[String] = {
-    trace(id)
-    get(id, "contents")
+  def show(): Try[String] = {
+    trace(())
+    get("contents")
   }
 
-  def listRoles(id: String): Try[String] = {
-    trace(id)
-    get(id, "roles")
+  def listRoles(): Try[String] = {
+    trace(())
+    get("roles")
   }
 
-  def createRole(id: String, jsonDef: File): Try[String] = {
+  def createRole(jsonDef: File): Try[String] = {
     trace(jsonDef)
-    tryReadFileToString(jsonDef).flatMap(postJson(id, "roles")(200))
+    tryReadFileToString(jsonDef).flatMap(postJson("roles")(200))
   }
 
-  def listFacets(id: String): Try[String] = {
-    trace(id)
-    get(id, "facets")
+  def listFacets(): Try[String] = {
+    trace(())
+    get("facets")
   }
 
-  def setFacets(id: String, facets: Seq[String]): Try[String] = {
+  def setFacets(facets: Seq[String]): Try[String] = {
     trace(facets)
-    postJson(id, "facets")(200)(facets.map(s => s""""$s"""").mkString("[", ",", "]"))
+    postJson("facets")(200)(facets.map(s => s""""$s"""").mkString("[", ",", "]"))
   }
 
-  def listRoleAssignments(id: String): Try[String] = {
-    trace(id)
-    get(id, "assignments")
+  def listRoleAssignments(): Try[String] = {
+    trace(())
+    get("assignments")
   }
 
-  def setDefaultRole(id: String, role: String): Try[String] = {
-    trace(id, role)
-    put(id, s"defaultContributorRole/$role")
+  // TODO: find out why it doesn't work
+  def setDefaultRole(role: String): Try[String] = {
+    trace(role)
+    put(s"defaultContributorRole/$role")(null)
   }
+
+  def setRole(jsonDef: File): Try[String] = {
+    trace(jsonDef)
+    tryReadFileToString(jsonDef).flatMap(postJson("assignments")(200))
+  }
+
+  def deleteRole(roleId: String): Try[String] = {
+    trace(roleId)
+    deletePath(s"assignments/$roleId")
+  }
+
+  def listMetadataBocks(): Try[String] = {
+    trace(())
+    get("metadatablocks")
+  }
+
+  def setMetadataBlocks(mdBlockIds: Seq[String]): Try[String] = {
+    trace(mdBlockIds)
+    postJson("metadatablocks")(200)(mdBlockIds.map(s => s""""$s"""").mkString("[", ",", "]"))
+  }
+
+  def isMetadataBlocksRoot: Try[String] = {
+    trace(())
+    get("metadatablocks/isRoot")
+  }
+
+  def setMetadataBlocksRoot(isRoot: Boolean): Try[String] = {
+    trace(isRoot)
+    put("metadatablocks/isRoot")(isRoot.toString.toLowerCase)
+  }
+
+  def createDataset(json: File): Try[String] = {
+    trace(json)
+    tryReadFileToString(json).flatMap(postJson("datasets")(201))
+  }
+
+  def importDataset(importFile: File, isDdi: Boolean = false, pid: String, keepOnDraft: Boolean = false): Try[String] = {
+    trace(importFile)
+    tryReadFileToString(importFile).flatMap(postJson(s"datasets/:import${ if(isDdi) "ddi" else "" }?pid=$pid&release=${!keepOnDraft}")(201))
+  }
+  def publish(): Try[String] = {
+    trace(())
+    postJson("actions/:publish")(200)()
+  }
+
+
 }

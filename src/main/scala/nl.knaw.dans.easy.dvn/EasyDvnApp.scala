@@ -17,8 +17,8 @@ package nl.knaw.dans.easy.dvn
 
 class EasyDvnApp(configuration: Configuration)  {
 
-  def dataverse(): Dataverse = {
-    new Dataverse(configuration)
+  def dataverse(dvId: String): Dataverse = {
+    new Dataverse(dvId: String, configuration)
   }
 
 

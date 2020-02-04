@@ -33,27 +33,40 @@ object Command extends App with DebugEnhancedLogging {
   val app = new EasyDvnApp(configuration)
 
   val result: Try[FeedBackMessage] = commandLine.subcommands match {
-    case commandLine.dataverse :: (create @ commandLine.dataverse.create) :: Nil =>
-      app dataverse() create(create.parent(), File(create.json().getAbsolutePath))
-    case commandLine.dataverse :: (view @ commandLine.dataverse.view) :: Nil =>
-      app dataverse() view (view.id())
-    case commandLine.dataverse :: (delete @ commandLine.dataverse.delete) :: Nil =>
-      app dataverse() delete (delete.id())
-    case commandLine.dataverse :: (show @ commandLine.dataverse.show) :: Nil =>
-      app dataverse() show (show.id())
-    case commandLine.dataverse :: (listRoles @ commandLine.dataverse.listRoles) :: Nil =>
-      app dataverse() listRoles (listRoles.id())
-    case commandLine.dataverse :: (listFacets @ commandLine.dataverse.listFacets) :: Nil =>
-      app dataverse() listFacets (listFacets.id())
-    case commandLine.dataverse :: (setFacets @ commandLine.dataverse.setFacets) :: Nil =>
-      app dataverse() setFacets(setFacets.id(), setFacets.facets())
-    case commandLine.dataverse :: (createRole @ commandLine.dataverse.createRole) :: Nil =>
-      app dataverse() createRole(createRole.id(), File(createRole.json().getAbsolutePath))
-    case commandLine.dataverse :: (listAssignments @ commandLine.dataverse.listAssignments) :: Nil =>
-      app dataverse() listRoleAssignments(listAssignments.id())
-    case commandLine.dataverse :: (setDefaultRole @ commandLine.dataverse.setDefaultRole) :: Nil =>
-      app dataverse() setDefaultRole(setDefaultRole.id(), setDefaultRole.role())
-
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.create) :: Nil =>
+      app dataverse (dv.id()) create (File(action.json().getAbsolutePath))
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.view) :: Nil =>
+      app dataverse (dv.id()) view()
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.delete) :: Nil =>
+      app dataverse (dv.id()) delete()
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.show) :: Nil =>
+      app dataverse (dv.id()) show()
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listRoles) :: Nil =>
+      app dataverse (dv.id()) listRoles()
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listFacets) :: Nil =>
+      app dataverse (dv.id()) listFacets()
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setFacets) :: Nil =>
+      app dataverse (dv.id()) setFacets (action.facets())
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.createRole) :: Nil =>
+      app dataverse (dv.id()) createRole (File(action.json().getAbsolutePath))
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listAssignments) :: Nil =>
+      app dataverse (dv.id()) listRoleAssignments()
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setDefaultRole) :: Nil =>
+      app dataverse (dv.id()) setDefaultRole (action.role())
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setRole) :: Nil =>
+      app dataverse (dv.id()) setRole (File(action.json().getAbsolutePath))
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.deleteRole) :: Nil =>
+      app dataverse (dv.id()) deleteRole (action.roleId())
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listMetadataBlocks) :: Nil =>
+      app dataverse (dv.id()) listMetadataBocks()
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setMetadataBlocks) :: Nil =>
+      app dataverse (dv.id()) setMetadataBlocks (action.metadataBlockIds())
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.publish) :: Nil =>
+      app dataverse (dv.id()) publish()
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.createDataset) :: Nil =>
+      app dataverse (dv.id()) createDataset(File(action.json().getAbsolutePath))
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.importDataset) :: Nil =>
+      app dataverse (dv.id()) importDataset (File(action.importFile().getAbsolutePath), action.format() == "ddi", action.pid(), action.keepOnDraft())
 
   }
 
