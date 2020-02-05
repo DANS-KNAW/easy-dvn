@@ -15,8 +15,9 @@
  */
 package nl.knaw.dans.easy.dvn
 
-import java.io.{File => jFile}
-import org.rogach.scallop.{ ScallopConf, ScallopOption, Subcommand, singleArgConverter }
+import java.io.{ File => jFile }
+
+import org.rogach.scallop.{ ScallopConf, ScallopOption, Subcommand }
 
 class CommandLineOptions(args: Array[String], configuration: Configuration) extends ScallopConf(args) {
   appendDefaultToDescription = true
@@ -51,9 +52,13 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
        |Options:
        |""".stripMargin)
 
+  /*
+   * Dataverse commands
+   */
   val dataverse = new Subcommand("dataverse") {
     descr("Operations on a dataverse")
-    val id: ScallopOption[String] = trailArg("dataverse")
+    val id: ScallopOption[String] = trailArg("dataverse",
+      descr = "The dataverse alias")
     val create = new Subcommand("create") {
       descr("Creates a dataverse")
       val json: ScallopOption[jFile] = opt(name = "json",
@@ -91,7 +96,6 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(createRole)
 
-
     val listFacets = new Subcommand("list-facets") {
       descr("List facets in a dataverse")
     }
@@ -99,16 +103,16 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
 
     val setFacets = new Subcommand("set-facets") {
       descr("Set the facets fore a dataverse")
-      val facets: ScallopOption[List[String]] = opt(name = "facets",
+      val facets: ScallopOption[List[String]] = trailArg(name = "facets",
         descr = "Facets to set",
         required = true)
     }
     addSubcommand(setFacets)
 
-    val listAssignments = new Subcommand("list-assignments") {
+    val listRoleAssignments = new Subcommand("list-role-assignments") {
       descr("List role assignments in a dataverse")
     }
-    addSubcommand(listAssignments)
+    addSubcommand(listRoleAssignments)
 
     val setDefaultRole = new Subcommand("set-default-role") {
       descr("Set the default role for a user creating a dataset")
@@ -117,22 +121,22 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(setDefaultRole)
 
-    val setRole = new Subcommand("set-role") {
+    val assignRole = new Subcommand("assign-role") {
       descr("Assigns a new role, based on the POSTed JSON")
       val json: ScallopOption[jFile] = opt(name = "json",
         descr = "JSON file containing role assignment detail",
         required = true)
       validateFileExists(json)
     }
-    addSubcommand(setRole)
+    addSubcommand(assignRole)
 
-    val deleteRole = new Subcommand("delete-role") {
-      descr("Deletes are role assignment")
-      val roleId: ScallopOption[String] = opt(name = "role-id",
+    val unassignRole = new Subcommand("unassign-role") {
+      descr("Deletes ar role assignment")
+      val roleId: ScallopOption[String] = trailArg(name = "assignment-id",
         descr = "ID of the role assignment to delete",
         required = true)
     }
-    addSubcommand(deleteRole)
+    addSubcommand(unassignRole)
 
     val listMetadataBlocks = new Subcommand("list-metadata-blocks") {
       descr("Gets the metadata blocks defined on the passed dataverse")
@@ -141,11 +145,29 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
 
     val setMetadataBlocks = new Subcommand("set-metadata-blocks") {
       descr("Sets the metadata blocks of the dataverse")
-      val metadataBlockIds: ScallopOption[List[String]] = opt(name = "metadata-block-id",
+      val metadataBlockIds: ScallopOption[List[String]] = trailArg(name = "metadata-block-id",
         descr = "Identifiers of metadata blocks to set",
         required = true)
     }
     addSubcommand(setMetadataBlocks)
+
+    val isMetadataBlocksRoot = new Subcommand("is-metadata-blocks-root") {
+      descr("Whether this dataverse inherits metadata blocks from its parent")
+    }
+    addSubcommand(isMetadataBlocksRoot)
+
+    val setMetadataBlocksRoot = new Subcommand("set-metadata-blocks-root") {
+      descr("Sets whether this dataverse inherits metadata blocks from its parent")
+      val setRoot: ScallopOption[String] = trailArg("set-root",
+        descr = "If true this is a root (does not inherit) otherwise non-root (inherits)",
+        required = false,
+        default = Some("true"))
+      validate(setRoot) { s =>
+        if (List("true", "false").contains(s)) Right(())
+        else Left("Must be one of true or false")
+      }
+    }
+    addSubcommand(setMetadataBlocksRoot)
 
     val createDataset = new Subcommand("create-dataset") {
       descr("Creates a new dataset in this dataverse")
@@ -184,16 +206,21 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
   }
   addSubcommand(dataverse)
 
-  val dataset = new Subcommand("dataverse") {
+  /*
+   * Dataset commands
+   */
+  val dataset = new Subcommand("dataset") {
+    val id: ScallopOption[String] = trailArg("dataset",
+      descr = "Dataset (persistent) ID")
+    val persistentId: ScallopOption[Boolean] = opt("persistent-id",
+      descr = "Use the persistent instead of internal ID")
 
-
-
-
-
-
-    
+    val view = new Subcommand("view") {
+      descr("View metadata about a dataverse")
+    }
+    addSubcommand(view)
   }
-
+  addSubcommand(dataset)
 
   footer("")
 }

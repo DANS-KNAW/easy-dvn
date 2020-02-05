@@ -33,6 +33,9 @@ object Command extends App with DebugEnhancedLogging {
   val app = new EasyDvnApp(configuration)
 
   val result: Try[FeedBackMessage] = commandLine.subcommands match {
+    /*
+     * Dataverse commands
+     */
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.create) :: Nil =>
       app dataverse (dv.id()) create (File(action.json().getAbsolutePath))
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.view) :: Nil =>
@@ -49,24 +52,31 @@ object Command extends App with DebugEnhancedLogging {
       app dataverse (dv.id()) setFacets (action.facets())
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.createRole) :: Nil =>
       app dataverse (dv.id()) createRole (File(action.json().getAbsolutePath))
-    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listAssignments) :: Nil =>
+    case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listRoleAssignments) :: Nil =>
       app dataverse (dv.id()) listRoleAssignments()
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setDefaultRole) :: Nil =>
       app dataverse (dv.id()) setDefaultRole (action.role())
-    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setRole) :: Nil =>
-      app dataverse (dv.id()) setRole (File(action.json().getAbsolutePath))
-    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.deleteRole) :: Nil =>
-      app dataverse (dv.id()) deleteRole (action.roleId())
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.assignRole) :: Nil =>
+      app dataverse (dv.id()) assignRole (File(action.json().getAbsolutePath))
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.unassignRole) :: Nil =>
+      app dataverse (dv.id()) unassignRole (action.roleId())
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listMetadataBlocks) :: Nil =>
       app dataverse (dv.id()) listMetadataBocks()
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setMetadataBlocks) :: Nil =>
       app dataverse (dv.id()) setMetadataBlocks (action.metadataBlockIds())
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.isMetadataBlocksRoot) :: Nil =>
+      app dataverse (dv.id()) isMetadataBlocksRoot
+    case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setMetadataBlocksRoot) :: Nil =>
+      app dataverse (dv.id()) setMetadataBlocksRoot(action.setRoot().toBoolean)
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.publish) :: Nil =>
       app dataverse (dv.id()) publish()
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.createDataset) :: Nil =>
-      app dataverse (dv.id()) createDataset(File(action.json().getAbsolutePath))
+      app dataverse (dv.id()) createDataset (File(action.json().getAbsolutePath))
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.importDataset) :: Nil =>
-      app dataverse (dv.id()) importDataset (File(action.importFile().getAbsolutePath), action.format() == "ddi", action.pid(), action.keepOnDraft())
+      app dataverse (dv.id()) importDataset(File(action.importFile().getAbsolutePath), action.format() == "ddi", action.pid(), action.keepOnDraft())
+
+    case (ds @ commandLine.dataset) :: (commandLine.dataset.view) :: Nil =>
+      app dataset (ds.id()) view(ds.id(), ds.persistentId())
 
   }
 

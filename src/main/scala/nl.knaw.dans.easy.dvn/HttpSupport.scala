@@ -16,9 +16,12 @@
 package nl.knaw.dans.easy.dvn
 
 import java.net.URI
+import java.nio.charset.StandardCharsets
 
+import better.files.File
 import com.google.gson.{ GsonBuilder, JsonParser }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+import org.apache.commons.io.FileUtils
 import scalaj.http.{ Http, HttpResponse }
 
 import scala.util.{ Failure, Success, Try }
@@ -28,6 +31,7 @@ trait HttpSupport extends DebugEnhancedLogging{
   protected val readTimeout: Int
   protected val baseUrl: URI
   protected val apiToken: String
+  protected val apiVersion: String
   private val gson = new GsonBuilder().setPrettyPrinting().create()
 
   protected def http(method: String, uri: URI, body: String = null, headers: Map[String, String] = Map.empty[String, String]): Try[HttpResponse[Array[Byte]]] = Try {
@@ -38,6 +42,50 @@ trait HttpSupport extends DebugEnhancedLogging{
       .headers(headers)
       .timeout(connTimeoutMs = connectionTimeout, readTimeoutMs = readTimeout)
       .asBytes
+  }
+
+  /*
+ * Helpers
+ */
+  protected def get(subPath: String = null): Try[String] = {
+    for {
+      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      _ = debug(s"Request URL = $uri")
+      response <- http("GET", uri, body = null, Map("X-Dataverse-key" -> apiToken))
+      body <- handleResponse(response, 200)
+      prettyJson <- prettyPrintJson(new String(body))
+    } yield prettyJson
+  }
+
+  protected def postJson(subPath: String = null)(expectedStatus: Int = 201)(body: String = null): Try[String] = {
+    for {
+      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      _ = debug(s"Request URL = $uri")
+      response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
+      _ <- handleResponse(response, expectedStatus)
+    } yield s"Successfully POSTed: $body"
+  }
+
+  protected def put(subPath: String = null)(body: String = null): Try[String] = {
+    for {
+      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      _ = debug(s"Request URL = $uri")
+      response <- http("PUT", uri, body, Map("X-Dataverse-key" -> apiToken))
+      _ <- handleResponse(response, 200)
+    } yield s"Successfully PUT to $uri"
+  }
+
+  protected def deletePath(subPath: String = null): Try[String] = {
+    for {
+      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      _ = debug(s"Request URL = $uri")
+      response <- http("DELETE", uri, null, Map("X-Dataverse-key" -> apiToken))
+      _ <- handleResponse(response, 200)
+    } yield s"Successfully DELETED: $uri"
+  }
+
+  protected def tryReadFileToString(file: File): Try[String] = Try {
+    FileUtils.readFileToString(file.toJava, StandardCharsets.UTF_8)
   }
 
   protected def handleResponse(response: HttpResponse[Array[Byte]], expectedStatus: Int): Try[Array[Byte]] = {

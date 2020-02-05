@@ -21,5 +21,8 @@ class EasyDvnApp(configuration: Configuration)  {
     new Dataverse(dvId: String, configuration)
   }
 
+  def dataset(id: String): Dataset = {
+    new Dataset(id, configuration)
+  }
 
 }
