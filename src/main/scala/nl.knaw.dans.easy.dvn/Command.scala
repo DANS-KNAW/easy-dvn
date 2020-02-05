@@ -67,7 +67,7 @@ object Command extends App with DebugEnhancedLogging {
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.isMetadataBlocksRoot) :: Nil =>
       app dataverse (dv.id()) isMetadataBlocksRoot
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setMetadataBlocksRoot) :: Nil =>
-      app dataverse (dv.id()) setMetadataBlocksRoot(action.setRoot().toBoolean)
+      app dataverse (dv.id()) setMetadataBlocksRoot (action.setRoot().toBoolean)
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.publish) :: Nil =>
       app dataverse (dv.id()) publish()
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.createDataset) :: Nil =>
@@ -75,9 +75,15 @@ object Command extends App with DebugEnhancedLogging {
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.importDataset) :: Nil =>
       app dataverse (dv.id()) importDataset(File(action.importFile().getAbsolutePath), action.format() == "ddi", action.pid(), action.keepOnDraft())
 
+    /*
+     * Dataset commands
+     */
     case (ds @ commandLine.dataset) :: (commandLine.dataset.view) :: Nil =>
       app dataset (ds.id()) view(ds.id(), ds.persistentId())
-
+    case (ds @ commandLine.dataset) :: (commandLine.dataset.delete) :: Nil =>
+      app dataset (ds.id()) delete(ds.id(), ds.persistentId())
+    case (ds @ commandLine.dataset) :: (commandLine.dataset.listVersions) :: Nil =>
+      app dataset (ds.id()) listVersions(ds.id(), ds.persistentId())
   }
 
   result.doIfSuccess(msg => Console.err.println(s"OK: $msg"))

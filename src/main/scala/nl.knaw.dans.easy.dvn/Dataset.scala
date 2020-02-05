@@ -17,4 +17,15 @@ class Dataset(id: String, configuration: Configuration) extends HttpSupport with
     if(isPersistentId) get(s"datasets/:persistentId/?persistentId=$id")
     else get(s"datasets/$id")
   }
+
+  def delete(id: String, isPersistentId: Boolean): Try[String] = {
+    if(isPersistentId) deletePath(s"datasets/:persistentId/?persistentId=$id")
+    else deletePath(s"datasets/$id")
+  }
+
+  def listVersions(id: String, isPersistentId: Boolean): Try[String] = {
+    if(isPersistentId) get(s"datasets/:persistentId/versions?persistentId=$id")
+    else get(s"datasets/$id/versions")
+  }
+
 }

@@ -219,6 +219,19 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
       descr("View metadata about a dataverse")
     }
     addSubcommand(view)
+
+    val delete = new Subcommand("delete") {
+      descr("Deletes the dataset")
+    }
+    addSubcommand(delete)
+
+    val listVersions = new Subcommand("list-versions") {
+      descr("Lists the versions of a dataset")
+    }
+    addSubcommand(listVersions)
+
+    
+
   }
   addSubcommand(dataset)
 
