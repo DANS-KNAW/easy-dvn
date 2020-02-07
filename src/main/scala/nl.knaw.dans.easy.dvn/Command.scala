@@ -125,6 +125,12 @@ object Command extends App with DebugEnhancedLogging {
       app dataset (ds.id(), ds.persistentId()) revertCitationDateField()
     case (ds @ commandLine.dataset) :: (commandLine.dataset.listRoleAssignments) :: Nil =>
       app dataset (ds.id(), ds.persistentId()) listRoleAssignments()
+    case (ds @ commandLine.dataset) :: (commandLine.dataset.createPrivateUrl) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) createPrivateUrl()
+    case (ds @ commandLine.dataset) :: (commandLine.dataset.getPrivateUrl) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) getPrivateUrl
+    case (ds @ commandLine.dataset) :: commandLine.dataset.deletePrivateUrl :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) deletePrivateUrl()
 
 
       /*

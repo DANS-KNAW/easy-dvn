@@ -93,4 +93,22 @@ class Dataset(id: String, isPersistentId: Boolean, configuration: Configuration)
     get(path)
   }
 
+  def createPrivateUrl(): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/privateUrl?persistentId=$id"
+               else s"datasets/$id/privateUrl"
+    postJson(path)(201)(null)
+  }
+
+  def getPrivateUrl: Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/privateUrl?persistentId=$id"
+               else s"datasets/$id/privateUrl"
+    get(path)
+  }
+
+  def deletePrivateUrl(): Try[String]= {
+    val path = if(isPersistentId) s"datasets/:persistentId/privateUrl?persistentId=$id"
+               else s"datasets/$id/privateUrl"
+    deletePath(path)
+  }
+
 }

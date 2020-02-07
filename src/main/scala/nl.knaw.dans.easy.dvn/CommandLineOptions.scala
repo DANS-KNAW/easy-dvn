@@ -354,6 +354,22 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(listRoleAssignments)
 
+    val createPrivateUrl = new Subcommand("create-private-url") {
+      descr("Create a Private URL (must be able to manage dataset permissions)")
+    }
+    addSubcommand(createPrivateUrl)
+
+    val getPrivateUrl = new Subcommand("get-private-url") {
+      descr("Get the Private URL if exists (must be able to manage dataset permissions)")
+    }
+    addSubcommand(getPrivateUrl)
+
+    val deletePrivateUrl = new Subcommand("delete-private-url") {
+      descr("Deletes the Private URL if exists (must be able to manage dataset permissions)")
+    }
+    addSubcommand(deletePrivateUrl)
+
+
   }
   addSubcommand(dataset)
 
