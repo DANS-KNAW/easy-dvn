@@ -81,4 +81,10 @@ class Dataset(id: String, isPersistentId: Boolean, configuration: Configuration)
     put(path)(s"$fieldName")
   }
 
+  def revertCitationDateField(): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/citationdate?persistentId=$id"
+               else s"datasets/$id/citationdate"
+    deletePath(path)
+  }
+
 }

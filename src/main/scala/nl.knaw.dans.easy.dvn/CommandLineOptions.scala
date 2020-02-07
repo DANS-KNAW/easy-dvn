@@ -344,6 +344,10 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(setCitationDateField)
 
+    val revertCitationDateField = new Subcommand("revert-citation-date-field") {
+      descr("Reverts the date field to use in the citation to the default")
+    }
+    addSubcommand(revertCitationDateField)
 
   }
   addSubcommand(dataset)

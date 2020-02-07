@@ -121,6 +121,8 @@ object Command extends App with DebugEnhancedLogging {
       app dataset (ds.id(), ds.persistentId()) deleteDraft()
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.setCitationDateField) :: Nil =>
       app dataset (ds.id(), ds.persistentId()) setCitationDateField(action.fieldId())
+    case (ds @ commandLine.dataset) :: (commandLine.dataset.revertCitationDateField) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) revertCitationDateField()
 
 
       /*
