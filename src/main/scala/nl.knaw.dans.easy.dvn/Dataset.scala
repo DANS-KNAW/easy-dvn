@@ -87,4 +87,10 @@ class Dataset(id: String, isPersistentId: Boolean, configuration: Configuration)
     deletePath(path)
   }
 
+  def listRoleAssignments(): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/assignments?persistentId=$id"
+               else s"datasets/$id/assignments"
+    get(path)
+  }
+
 }

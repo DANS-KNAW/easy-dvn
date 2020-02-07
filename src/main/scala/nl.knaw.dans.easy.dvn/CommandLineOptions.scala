@@ -349,6 +349,11 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(revertCitationDateField)
 
+    val listRoleAssignments = new Subcommand("list-role-assignments") {
+      descr("List all the role assignments at the given dataset")
+    }
+    addSubcommand(listRoleAssignments)
+
   }
   addSubcommand(dataset)
 
