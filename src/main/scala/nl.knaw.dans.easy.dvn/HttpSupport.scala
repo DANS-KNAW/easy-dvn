@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.dvn
 
+import java.io.PrintStream
 import java.net.URI
 import java.nio.charset.StandardCharsets
 
@@ -47,14 +48,16 @@ trait HttpSupport extends DebugEnhancedLogging{
   /*
  * Helpers
  */
-  protected def get(subPath: String = null): Try[String] = {
+  protected def get(subPath: String = null, formatResponseAsJson: Boolean = true)(implicit resultOutput: PrintStream): Try[String] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("GET", uri, body = null, Map("X-Dataverse-key" -> apiToken))
       body <- handleResponse(response, 200)
-      prettyJson <- prettyPrintJson(new String(body))
-    } yield prettyJson
+      output <- if(formatResponseAsJson) prettyPrintJson(new String(body))
+                else Try(new String(body))
+      _ <- Try { resultOutput.print(output) }
+    } yield s"Retrieved URL: $uri"
   }
 
   protected def postJson(subPath: String = null)(expectedStatus: Int = 201)(body: String = null): Try[String] = {
@@ -95,7 +98,7 @@ trait HttpSupport extends DebugEnhancedLogging{
   }
 
   protected def prettyPrintJson(json: String): Try[String] = Try {
-    trace()
+    trace(())
     val parsedJson = JsonParser.parseString(json)
     gson.toJson(parsedJson)
   }

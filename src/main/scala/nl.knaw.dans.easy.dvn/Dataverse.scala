@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.dvn
 
+import java.io.PrintStream
 import java.net.URI
 
 import better.files.File
@@ -22,7 +23,7 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.Try
 
-class Dataverse(dvId: String, configuration: Configuration) extends HttpSupport with DebugEnhancedLogging {
+class Dataverse(dvId: String, configuration: Configuration)(implicit resultOutput: PrintStream) extends HttpSupport with DebugEnhancedLogging {
   trace(dvId)
   protected val connectionTimeout: Int = configuration.connectionTimeout
   protected val readTimeout: Int = configuration.readTimeout

@@ -217,6 +217,16 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
 
     val view = new Subcommand("view") {
       descr("View metadata about a dataverse")
+      val latest: ScallopOption[Boolean] = opt("latest",
+        descr = "View the latest version")
+      val latestPublished: ScallopOption[Boolean] = opt("latest-published", short = 'p',
+        descr = "View the latest published version")
+      val draft: ScallopOption[Boolean] = opt("draft",
+        descr = "View the draft version")
+      val version: ScallopOption[String] = opt("version",
+        descr = "View the specified version")
+
+      mutuallyExclusive(latest, latestPublished, draft, version)
     }
     addSubcommand(view)
 
@@ -230,7 +240,46 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(listVersions)
 
-    
+    val exportMetadataTo = new Subcommand("export-metadata-to") {
+      descr("Export the metadata of the current published version of a dataset in various formats")
+      val format: ScallopOption[String] = trailArg("format",
+        descr = "The metadata format to export to. One of: ddi, oai_ddi, dcterms, oai_dc, schema.org, dataverse_json",
+        required = true)
+    }
+    addSubcommand(exportMetadataTo)
+
+    val listFiles = new Subcommand("list-files") {
+      descr("Lists all the file metadata, for the given dataset and version")
+      val latest: ScallopOption[Boolean] = opt("latest",
+        descr = "View the latest version")
+      val latestPublished: ScallopOption[Boolean] = opt("latest-published", short = 'p',
+        descr = "View the latest published version")
+      val draft: ScallopOption[Boolean] = opt("draft",
+        descr = "View the draft version")
+      val version: ScallopOption[String] = opt("version",
+        descr = "View the specified version")
+      mutuallyExclusive(latest, latestPublished, draft, version)
+      requireAtLeastOne(latest, latestPublished, draft, version)
+    }
+    addSubcommand(listFiles)
+
+    val listMetadataBlocks = new Subcommand("list-metadata-blocks") {
+      descr("Lists all the metadata blocks and their content, for the given dataset and version")
+      val latest: ScallopOption[Boolean] = opt("latest",
+        descr = "View the latest version")
+      val latestPublished: ScallopOption[Boolean] = opt("latest-published", short = 'p',
+        descr = "View the latest published version")
+      val draft: ScallopOption[Boolean] = opt("draft",
+        descr = "View the draft version")
+      val version: ScallopOption[String] = opt("version",
+        descr = "View the specified version")
+      val blockName: ScallopOption[String] = opt("name",
+        descr = "Show only this block")
+      mutuallyExclusive(latest, latestPublished, draft, version)
+      requireAtLeastOne(latest, latestPublished, draft, version)
+    }
+    addSubcommand(listMetadataBlocks)
+
 
   }
   addSubcommand(dataset)

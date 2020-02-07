@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.easy.dvn
 
+import java.io.PrintStream
+
 import better.files.File
 import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
@@ -24,6 +26,7 @@ import scala.util.Try
 
 object Command extends App with DebugEnhancedLogging {
   type FeedBackMessage = String
+  implicit val resultOutput: PrintStream = Console.out
 
   val configuration = Configuration(File(System.getProperty("app.home")))
   logger.info(s"Read configuration: $configuration")
@@ -78,12 +81,32 @@ object Command extends App with DebugEnhancedLogging {
     /*
      * Dataset commands
      */
-    case (ds @ commandLine.dataset) :: (commandLine.dataset.view) :: Nil =>
-      app dataset (ds.id()) view(ds.id(), ds.persistentId())
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.view) :: Nil =>
+      val optVersion = if (action.latestPublished()) Some(":latest-published")
+                    else if (action.latest()) Some(":latest")
+                    else if (action.draft()) Some(":draft")
+                    else action.version.toOption.orElse(None)
+      app dataset (ds.id(), ds.persistentId()) view(optVersion)
     case (ds @ commandLine.dataset) :: (commandLine.dataset.delete) :: Nil =>
-      app dataset (ds.id()) delete(ds.id(), ds.persistentId())
+      app dataset (ds.id(), ds.persistentId()) delete()
     case (ds @ commandLine.dataset) :: (commandLine.dataset.listVersions) :: Nil =>
-      app dataset (ds.id()) listVersions(ds.id(), ds.persistentId())
+      app dataset (ds.id(), ds.persistentId()) listVersions()
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.exportMetadataTo) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) exportMetadataTo(action.format())
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.listFiles) :: Nil =>
+      val optVersion = if (action.latestPublished()) Some(":latest-published")
+                       else if (action.latest()) Some(":latest")
+                       else if (action.draft()) Some(":draft")
+                       else action.version.toOption.orElse(None)
+      app dataset (ds.id(), ds.persistentId()) listFiles(optVersion)
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.listMetadataBlocks) :: Nil =>
+      val optVersion = if (action.latestPublished()) Some(":latest-published")
+                       else if (action.latest()) Some(":latest")
+                       else if (action.draft()) Some(":draft")
+                       else action.version.toOption.orElse(None)
+      app dataset (ds.id(), ds.persistentId()) listMetadataBlocks(optVersion, action.blockName.toOption)
+
+
   }
 
   result.doIfSuccess(msg => Console.err.println(s"OK: $msg"))

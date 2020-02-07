@@ -15,14 +15,16 @@
  */
 package nl.knaw.dans.easy.dvn
 
-class EasyDvnApp(configuration: Configuration)  {
+import java.io.PrintStream
+
+class EasyDvnApp(configuration: Configuration)(implicit resultOutput: PrintStream)  {
 
   def dataverse(dvId: String): Dataverse = {
     new Dataverse(dvId: String, configuration)
   }
 
-  def dataset(id: String): Dataset = {
-    new Dataset(id, configuration)
+  def dataset(id: String, isPersistentId: Boolean): Dataset = {
+    new Dataset(id, isPersistentId, configuration)
   }
 
 }
