@@ -105,7 +105,21 @@ object Command extends App with DebugEnhancedLogging {
                        else if (action.draft()) Some(":draft")
                        else action.version.toOption.orElse(None)
       app dataset (ds.id(), ds.persistentId()) listMetadataBlocks(optVersion, action.blockName.toOption)
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.updateMetadata) :: Nil =>
+      val optVersion = if (action.latestPublished()) Some(":latest-published")
+                       else if (action.latest()) Some(":latest")
+                       else if (action.draft()) Some(":draft")
+                       else action.version.toOption.orElse(None)
+      app dataset (ds.id(), ds.persistentId()) updateMetadata(File(action.json().getAbsolutePath), optVersion)
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.editMetadata) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) editMetadata(File(action.json().getAbsolutePath), action.replace())
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.deleteMetadata) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) deleteMetadata(File(action.json().getAbsolutePath))
 
+
+      /*
+       * File commands
+       */
 
   }
 

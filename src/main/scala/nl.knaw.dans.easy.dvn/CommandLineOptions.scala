@@ -280,6 +280,45 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(listMetadataBlocks)
 
+    val updateMetadata = new Subcommand("update-metadata") {
+      descr("Updates the metadata for a dataset. If a draft of the dataset already exists, the metadata of that draft is overwritten; otherwise, a new draft is created with this metadata.")
+      val json: ScallopOption[jFile] = opt("json-metadata",
+        descr = "JSON file containing the new metadata",
+        required = true
+      )
+      val latest: ScallopOption[Boolean] = opt("latest",
+        descr = "View the latest version")
+      val latestPublished: ScallopOption[Boolean] = opt("latest-published", short = 'p',
+        descr = "View the latest published version")
+      val draft: ScallopOption[Boolean] = opt("draft",
+        descr = "View the draft version")
+      val version: ScallopOption[String] = opt("version",
+        descr = "View the specified version")
+      mutuallyExclusive(latest, latestPublished, draft, version)
+    }
+    addSubcommand(updateMetadata)
+
+    val editMetadata = new Subcommand("edit-metadata") {
+      descr("Add data to dataset fields that are blank or accept multiple values with the following")
+      val json: ScallopOption[jFile] = opt("json-metadata",
+        descr = "JSON file containing the new metadata",
+        required = true
+      )
+      val replace: ScallopOption[Boolean] = opt("replace",
+        descr = "Replace existing value instead of adding")
+    }
+    addSubcommand(editMetadata)
+
+    val deleteMetadata = new Subcommand("delete-metadata") {
+      descr("You may delete some of the metadata of a dataset version by supplying a file with a JSON representation of dataset fields that you would like to delete.")
+      val json: ScallopOption[jFile] = opt("json-metadata",
+        descr = "JSON file containing the metadata to delete",
+        required = true
+      )
+    }
+    addSubcommand(deleteMetadata)
+
+
 
   }
   addSubcommand(dataset)

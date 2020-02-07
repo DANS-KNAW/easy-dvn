@@ -3,6 +3,7 @@ package nl.knaw.dans.easy.dvn
 import java.io.PrintStream
 import java.net.URI
 
+import better.files.File
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.{ Failure, Try }
@@ -42,6 +43,24 @@ class Dataset(id: String, isPersistentId: Boolean, configuration: Configuration)
   def listMetadataBlocks(version: Option[String] = None, name: Option[String]): Try[String] = {
     if(isPersistentId) get(s"datasets/:persistentId/${version.map(v => s"versions/$v/").getOrElse("")}metadata/${ name.getOrElse( "" )}?persistentId=$id")
     else get(s"datasets/$id/${version.map(v => s"versions/$v/").getOrElse("")}/metadata/${ name.getOrElse( "" )}")
+  }
+
+  def updateMetadata(json: File, version: Option[String] = None): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/${version.map(v => s"versions/$v/").getOrElse("")}?persistentId=$id"
+              else s"datasets/$id/${version.map(v => s"versions/$v/").getOrElse("")}/"
+    tryReadFileToString(json).flatMap(put(path))
+  }
+
+  def editMetadata(json: File, replace: Boolean = false): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/editMetadata/?persistentId=$id${ if(replace) "&replace=$replace" else "" }"
+               else s"datasets/$id/editMetadata/${ if(replace) "?replace=$replace" else "" }"
+    tryReadFileToString(json).flatMap(put(path))
+  }
+
+  def deleteMetadata(json: File): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/deleteMetadata/?persistentId=$id"
+               else s"datasets/$id/deleteMetadata"
+    tryReadFileToString(json).flatMap(put(path))
   }
 
 }
