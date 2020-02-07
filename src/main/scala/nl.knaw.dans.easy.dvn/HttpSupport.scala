@@ -60,12 +60,12 @@ trait HttpSupport extends DebugEnhancedLogging{
     } yield s"Retrieved URL: $uri"
   }
 
-  protected def postJson(subPath: String = null)(expectedStatus: Int = 201)(body: String = null): Try[String] = {
+  protected def postJson(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[String] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
-      _ <- handleResponse(response, expectedStatus)
+      _ <- handleResponse(response, expectedStatus: _*)
     } yield s"Successfully POSTed: $body"
   }
 
@@ -91,9 +91,9 @@ trait HttpSupport extends DebugEnhancedLogging{
     FileUtils.readFileToString(file.toJava, StandardCharsets.UTF_8)
   }
 
-  protected def handleResponse(response: HttpResponse[Array[Byte]], expectedStatus: Int): Try[Array[Byte]] = {
+  protected def handleResponse(response: HttpResponse[Array[Byte]], expectedStatus: Int*): Try[Array[Byte]] = {
     trace(expectedStatus)
-    if (response.code != expectedStatus) Failure(CommandFailedException(response.code, response.statusLine, new String(response.body)))
+    if (!expectedStatus.contains(response.code)) Failure(CommandFailedException(response.code, response.statusLine, new String(response.body)))
     else Success(response.body)
   }
 

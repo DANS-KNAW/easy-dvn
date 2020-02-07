@@ -63,4 +63,10 @@ class Dataset(id: String, isPersistentId: Boolean, configuration: Configuration)
     tryReadFileToString(json).flatMap(put(path))
   }
 
+  def publish(updateType: String): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/actions/:publish/?persistentId=$id&type=$updateType"
+               else s"datasets/$id/actions/:publish?type=$updateType"
+    postJson(path)(200, 202)(null)
+  }
+
 }

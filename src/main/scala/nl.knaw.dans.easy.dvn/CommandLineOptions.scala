@@ -318,6 +318,18 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(deleteMetadata)
 
+    val publish = new Subcommand("publish") {
+      descr("Publish a dataset.")
+      val publishType: ScallopOption[String] = opt("type",
+        descr = "How to update existing version: major or minor update",
+        required = true
+      )
+      validate(publishType) { t =>
+        if (List("major", "minor").contains(t)) Right(())
+        else Left("type must be one of 'major', 'minor'")
+      }
+    }
+    addSubcommand(publish)
 
 
   }

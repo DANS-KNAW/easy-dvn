@@ -115,6 +115,8 @@ object Command extends App with DebugEnhancedLogging {
       app dataset (ds.id(), ds.persistentId()) editMetadata(File(action.json().getAbsolutePath), action.replace())
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.deleteMetadata) :: Nil =>
       app dataset (ds.id(), ds.persistentId()) deleteMetadata(File(action.json().getAbsolutePath))
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.publish) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) publish(action.publishType())
 
 
       /*
