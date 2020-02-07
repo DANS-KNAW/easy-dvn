@@ -69,4 +69,16 @@ class Dataset(id: String, isPersistentId: Boolean, configuration: Configuration)
     postJson(path)(200, 202)(null)
   }
 
+  def deleteDraft(): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/versions/:draft/?persistentId=$id"
+              else s"datasets/$id/versions/:draft/"
+    deletePath(path)
+  }
+
+  def setCitationDateField(fieldName: String): Try[String] = {
+    val path = if(isPersistentId) s"datasets/:persistentId/citationdate?persistentId=$id"
+               else s"datasets/$id/citationdate"
+    put(path)(s"$fieldName")
+  }
+
 }

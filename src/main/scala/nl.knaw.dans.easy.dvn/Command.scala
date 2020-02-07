@@ -117,6 +117,10 @@ object Command extends App with DebugEnhancedLogging {
       app dataset (ds.id(), ds.persistentId()) deleteMetadata(File(action.json().getAbsolutePath))
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.publish) :: Nil =>
       app dataset (ds.id(), ds.persistentId()) publish(action.publishType())
+    case (ds @ commandLine.dataset) :: (commandLine.dataset.deleteDraft) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) deleteDraft()
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.setCitationDateField) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) setCitationDateField(action.fieldId())
 
 
       /*

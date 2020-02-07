@@ -331,6 +331,19 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(publish)
 
+    val deleteDraft = new Subcommand("delete-draft") {
+      descr("Deletes the draft version")
+    }
+    addSubcommand(deleteDraft)
+
+    val setCitationDateField = new Subcommand("set-citation-date-field") {
+      descr("Sets the date field to use in the citation")
+      val fieldId: ScallopOption[String] = trailArg("field-id",
+        descr = "ID of the date field to use",
+        required = true)
+    }
+    addSubcommand(setCitationDateField)
+
 
   }
   addSubcommand(dataset)
