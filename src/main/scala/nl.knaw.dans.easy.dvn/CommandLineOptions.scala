@@ -450,6 +450,15 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(replace)
 
+    val uningest = new Subcommand("uningest") {
+      descr("Uningest a tabular file")
+    }
+    addSubcommand(uningest)
+
+    val reingest = new Subcommand("reingest") {
+      descr("Reingest a tabular file")
+    }
+    addSubcommand(reingest)
 
   }
   addSubcommand(file)

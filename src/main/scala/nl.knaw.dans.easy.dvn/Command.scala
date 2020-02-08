@@ -162,7 +162,11 @@ object Command extends App with DebugEnhancedLogging {
 
       val json = s"""{"description":"$description","categories":$categories, "restrict":"$restrict"}"""
 
-      app file(f.id(), f.persistentId()) replaceFile(File(action.dataFile().getAbsolutePath), action.jsonMetadata.toOption.map(f => File(f.getAbsolutePath)).orElse(None), Some(json))
+      app file(f.id(), f.persistentId()) replace(File(action.dataFile().getAbsolutePath), action.jsonMetadata.toOption.map(f => File(f.getAbsolutePath)).orElse(None), Some(json))
+    case (f @ commandLine.file) :: (commandLine.file.uningest) :: Nil =>
+      app file(f.id(), f.persistentId()) uningest()
+    case (f @ commandLine.file) :: (commandLine.file.reingest) :: Nil =>
+      app file(f.id(), f.persistentId()) reingest()
 
   }
 

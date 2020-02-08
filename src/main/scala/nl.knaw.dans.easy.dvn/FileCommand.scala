@@ -22,19 +22,29 @@ class FileCommand (id: String, isPersistentId: Boolean, configuration: Configura
     put(path)(doRestict.toString)
   }
 
-  def replaceFile(dataFile: File, jsonMetadata: Option[File], jsonString: Option[String]): Try[String] = {
-    trace(dataFile, jsonMetadata, jsonString)
+  def replace(replacementData: File, replacementJsonMetadata: Option[File], jsonString: Option[String]): Try[String] = {
+    trace(replacementData, replacementJsonMetadata, jsonString)
     val path = if(isPersistentId) s"files/:persistentId/replace?persistentId=$id"
                else s"files/$id/replace"
-    jsonMetadata.map {
+    replacementJsonMetadata.map {
       f => tryReadFileToString(f).flatMap {
-        s => postFile(path, dataFile, Some(s))(200, formatResponseAsJson = true)
+        s => postFile(path, replacementData, Some(s))(200, formatResponseAsJson = true)
       }
     }.getOrElse {
-      postFile(path, dataFile, jsonString)(200, formatResponseAsJson = true)
+      postFile(path, replacementData, jsonString)(200, formatResponseAsJson = true)
     }
   }
 
+  def uningest(): Try[String] = {
+    val path = if(isPersistentId) s"files/:persistentId/uningest?persistentId=$id"
+               else s"files/$id/uningest"
+    postJson(path)(200)()
+  }
 
+  def reingest(): Try[String] = {
+    val path = if(isPersistentId) s"files/:persistentId/reingest?persistentId=$id"
+               else s"files/$id/reingest"
+    postJson(path)(200)()
+  }
 
 }
