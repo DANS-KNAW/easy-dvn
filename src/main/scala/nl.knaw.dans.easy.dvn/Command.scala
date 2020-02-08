@@ -145,6 +145,9 @@ object Command extends App with DebugEnhancedLogging {
       app dataset (ds.id(), ds.persistentId()) returnToAuthor(action.reason())
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.link) :: Nil =>
       app dataset (ds.id(), ds.persistentId()) link(action.dataverseAlias())
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.getLocks) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) getLocks(action.lockType.toOption)
+
 
 
       /*

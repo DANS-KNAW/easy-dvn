@@ -162,4 +162,11 @@ class Dataset(id: String, isPersistentId: Boolean, configuration: Configuration)
     put(path)()
   }
 
+  def getLocks(lockType: Option[String] = None): Try[String] = {
+    trace(lockType)
+    val path = if(isPersistentId) s"datasets/:persistentId/locks?persistentId=$id${lockType.map(t => "&type=$t").getOrElse("")}"
+               else s"datasets/$id/locks${lockType.map(t => "?type=$t").getOrElse("")}"
+    get(path)
+  }
+
 }

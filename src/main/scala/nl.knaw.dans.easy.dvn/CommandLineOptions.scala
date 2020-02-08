@@ -408,6 +408,12 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(link)
 
+    val getLocks = new Subcommand("get-locks") {
+      descr("Display information about current locks on this dataset")
+      val lockType: ScallopOption[String] = opt("lock-type", short = 't')
+    }
+    addSubcommand(getLocks)
+
   }
   addSubcommand(dataset)
 
