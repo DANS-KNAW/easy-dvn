@@ -23,7 +23,7 @@ import better.files.File
 import com.google.gson.{ GsonBuilder, JsonParser }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.apache.commons.io.FileUtils
-import scalaj.http.{ Http, HttpResponse }
+import scalaj.http.{ Http, HttpResponse, MultiPart }
 
 import scala.util.{ Failure, Success, Try }
 
@@ -43,6 +43,30 @@ trait HttpSupport extends DebugEnhancedLogging{
       .headers(headers)
       .timeout(connTimeoutMs = connectionTimeout, readTimeoutMs = readTimeout)
       .asBytes
+  }
+
+  private def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
+    val parts = MultiPart(data = file.byteArray, name = "file", filename = file.name, mime = "application/octet-stream") +:
+      optJsonMetadata.map {
+        json => List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
+      }.getOrElse(Nil)
+
+      Http(uri.toASCIIString).postMulti(parts: _*)
+      .timeout(connTimeoutMs = connectionTimeout, readTimeoutMs = readTimeout)
+      .headers(headers)
+      .asBytes
+  }
+
+  protected def postFile(subPath: String, file: File, optJsonMetadata: Option[String] = None)(expectedStatus: Int, formatResponseAsJson: Boolean = false)(implicit resultOutput: PrintStream): Try[String] = {
+    for {
+      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      _ = debug(s"Request URL = $uri")
+      response <- httpPostMulti(uri, file, optJsonMetadata, Map("X-Dataverse-key" -> apiToken))
+      body <- handleResponse(response, expectedStatus)
+      output <- if(formatResponseAsJson) prettyPrintJson(new String(body))
+                else Try(new String(body))
+      _ <- Try { resultOutput.print(output) }
+    } yield s"Posted to URL: $uri"
   }
 
   /*

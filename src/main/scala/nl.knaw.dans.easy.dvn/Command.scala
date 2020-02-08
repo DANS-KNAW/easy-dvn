@@ -131,6 +131,14 @@ object Command extends App with DebugEnhancedLogging {
       app dataset (ds.id(), ds.persistentId()) getPrivateUrl
     case (ds @ commandLine.dataset) :: commandLine.dataset.deletePrivateUrl :: Nil =>
       app dataset (ds.id(), ds.persistentId()) deletePrivateUrl()
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.addFile) :: Nil =>
+      val categories = action.categories().map(c => s""""$c"""").mkString("[", ",", "]")
+      val description = action.description()
+      val restrict = action.restrict()
+
+      val json = s"""{"description":"$description","categories":$categories, "restrict":"$restrict"}"""
+
+      app dataset (ds.id(), ds.persistentId()) addFile (File(action.dataFile().getAbsolutePath), action.jsonMetadata.toOption.map(f => File(f.getAbsolutePath)).orElse(None), Some(json))
 
 
       /*

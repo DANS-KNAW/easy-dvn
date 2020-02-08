@@ -369,6 +369,24 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(deletePrivateUrl)
 
+    val addFile = new Subcommand("add-file") {
+      descr("Adds a data file")
+      val jsonMetadata: ScallopOption[jFile] = opt("json-metadata",
+        descr = "Metadata for the file in JSON format")
+      val description: ScallopOption[String] = opt("description", default = Some(""))
+      val categories: ScallopOption[List[String]] = opt("categories", default = Some(List()))
+      val restrict: ScallopOption[Boolean] = opt("restrict")
+      val dataFile: ScallopOption[jFile] = trailArg("file",
+        descr = "Data file to add",
+        required = true)
+      mutuallyExclusive(jsonMetadata, description)
+      mutuallyExclusive(jsonMetadata, categories)
+      mutuallyExclusive(jsonMetadata, restrict)
+      validateFileExists(jsonMetadata)
+      validateFileExists(dataFile)
+    }
+    addSubcommand(addFile)
+
 
   }
   addSubcommand(dataset)
