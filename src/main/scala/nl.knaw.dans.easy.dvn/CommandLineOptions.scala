@@ -387,6 +387,26 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(addFile)
 
+    val submitForReview = new Subcommand("submit-for-review") {
+      descr("Submit dataset for review")
+    }
+    addSubcommand(submitForReview)
+
+    val returnToAuthor = new Subcommand("return-to-author") {
+      descr("Return a dataset that is in review to the author")
+      val reason: ScallopOption[String] = opt("reason",
+        descr = "Reason why the dataset cannot be published yet",
+        required = true)
+    }
+    addSubcommand(returnToAuthor)
+
+    val link = new Subcommand("link") {
+      descr("Creates a link to this dataset in another dataverse")
+      val dataverseAlias: ScallopOption[String] = trailArg("dataverse",
+        descr = "The alias of the dataverse to create the link in",
+        required = true)
+    }
+    addSubcommand(link)
 
   }
   addSubcommand(dataset)

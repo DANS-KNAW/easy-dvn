@@ -139,6 +139,12 @@ object Command extends App with DebugEnhancedLogging {
       val json = s"""{"description":"$description","categories":$categories, "restrict":"$restrict"}"""
 
       app dataset (ds.id(), ds.persistentId()) addFile (File(action.dataFile().getAbsolutePath), action.jsonMetadata.toOption.map(f => File(f.getAbsolutePath)).orElse(None), Some(json))
+    case (ds @ commandLine.dataset) :: commandLine.dataset.submitForReview :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) submitForReview()
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.returnToAuthor) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) returnToAuthor(action.reason())
+    case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.link) :: Nil =>
+      app dataset (ds.id(), ds.persistentId()) link(action.dataverseAlias())
 
 
       /*

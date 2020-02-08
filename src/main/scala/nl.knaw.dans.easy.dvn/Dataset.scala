@@ -141,4 +141,25 @@ class Dataset(id: String, isPersistentId: Boolean, configuration: Configuration)
     }
   }
 
+  def submitForReview(): Try[String] = {
+    trace(())
+    val path = if(isPersistentId) s"datasets/:persistentId/submitForReview?persistentId=$id"
+               else s"datasets/$id/submitForReview"
+    postJson(path)(200)(null)
+  }
+
+  def returnToAuthor(reason: String): Try[String] = {
+    trace(reason)
+    val path = if(isPersistentId) s"datasets/:persistentId/returnToAuthor?persistentId=$id"
+               else s"datasets/$id/returnToAuthor"
+    postJson(path)(200)(s"""{"reasonForReturn": "$reason"}""")
+  }
+
+  def link(dataverseAlias: String): Try[String] = {
+    trace(dataverseAlias)
+    val path = if(isPersistentId) s"datasets/:persistentId/link/$dataverseAlias?persistentId=$id"
+               else s"datasets/$id/link/$dataverseAlias"
+    put(path)()
+  }
+
 }
