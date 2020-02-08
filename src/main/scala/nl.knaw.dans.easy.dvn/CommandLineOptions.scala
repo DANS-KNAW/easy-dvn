@@ -213,7 +213,7 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     val id: ScallopOption[String] = trailArg("dataset",
       descr = "Dataset (persistent) ID")
     val persistentId: ScallopOption[Boolean] = opt("persistent-id",
-      descr = "Use the persistent instead of internal ID")
+      descr = "Use the persistent instead or internal ID")
 
     val view = new Subcommand("view") {
       descr("View metadata about a dataverse")
@@ -417,5 +417,41 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
   }
   addSubcommand(dataset)
 
+  val file = new Subcommand("file") {
+    val id: ScallopOption[String] = trailArg("file",
+      descr = "File (persistent) ID")
+    val persistentId: ScallopOption[Boolean] = opt("persistent-id",
+      descr = "Use the persistent instead or internal ID")
+
+    val restrict = new Subcommand("restrict") {
+      descr("Set the file to restricted")
+    }
+    addSubcommand(restrict)
+    val unrestrict = new Subcommand("unrestrict") {
+      descr("Set the file to unrestricted")
+    }
+    addSubcommand(unrestrict)
+
+    val replace = new Subcommand("replace") {
+      descr("Replace a data file")
+      val jsonMetadata: ScallopOption[jFile] = opt("json-metadata",
+        descr = "Metadata for the file in JSON format")
+      val description: ScallopOption[String] = opt("description", default = Some(""))
+      val categories: ScallopOption[List[String]] = opt("categories", default = Some(List()))
+      val restrict: ScallopOption[Boolean] = opt("restrict")
+      val dataFile: ScallopOption[jFile] = trailArg("file",
+        descr = "Data file to replace",
+        required = true)
+      mutuallyExclusive(jsonMetadata, description)
+      mutuallyExclusive(jsonMetadata, categories)
+      mutuallyExclusive(jsonMetadata, restrict)
+      validateFileExists(jsonMetadata)
+      validateFileExists(dataFile)
+    }
+    addSubcommand(replace)
+
+
+  }
+  addSubcommand(file)
   footer("")
 }

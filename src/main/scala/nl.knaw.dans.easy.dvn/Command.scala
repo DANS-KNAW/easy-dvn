@@ -83,54 +83,54 @@ object Command extends App with DebugEnhancedLogging {
      */
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.view) :: Nil =>
       val optVersion = if (action.latestPublished()) Some(":latest-published")
-                    else if (action.latest()) Some(":latest")
-                    else if (action.draft()) Some(":draft")
-                    else action.version.toOption.orElse(None)
-      app dataset (ds.id(), ds.persistentId()) view(optVersion)
+                       else if (action.latest()) Some(":latest")
+                       else if (action.draft()) Some(":draft")
+                       else action.version.toOption.orElse(None)
+      app dataset(ds.id(), ds.persistentId()) view (optVersion)
     case (ds @ commandLine.dataset) :: (commandLine.dataset.delete) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) delete()
+      app dataset(ds.id(), ds.persistentId()) delete()
     case (ds @ commandLine.dataset) :: (commandLine.dataset.listVersions) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) listVersions()
+      app dataset(ds.id(), ds.persistentId()) listVersions()
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.exportMetadataTo) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) exportMetadataTo(action.format())
+      app dataset(ds.id(), ds.persistentId()) exportMetadataTo (action.format())
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.listFiles) :: Nil =>
       val optVersion = if (action.latestPublished()) Some(":latest-published")
                        else if (action.latest()) Some(":latest")
                        else if (action.draft()) Some(":draft")
                        else action.version.toOption.orElse(None)
-      app dataset (ds.id(), ds.persistentId()) listFiles(optVersion)
+      app dataset(ds.id(), ds.persistentId()) listFiles (optVersion)
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.listMetadataBlocks) :: Nil =>
       val optVersion = if (action.latestPublished()) Some(":latest-published")
                        else if (action.latest()) Some(":latest")
                        else if (action.draft()) Some(":draft")
                        else action.version.toOption.orElse(None)
-      app dataset (ds.id(), ds.persistentId()) listMetadataBlocks(optVersion, action.blockName.toOption)
+      app dataset(ds.id(), ds.persistentId()) listMetadataBlocks(optVersion, action.blockName.toOption)
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.updateMetadata) :: Nil =>
       val optVersion = if (action.latestPublished()) Some(":latest-published")
                        else if (action.latest()) Some(":latest")
                        else if (action.draft()) Some(":draft")
                        else action.version.toOption.orElse(None)
-      app dataset (ds.id(), ds.persistentId()) updateMetadata(File(action.json().getAbsolutePath), optVersion)
+      app dataset(ds.id(), ds.persistentId()) updateMetadata(File(action.json().getAbsolutePath), optVersion)
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.editMetadata) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) editMetadata(File(action.json().getAbsolutePath), action.replace())
+      app dataset(ds.id(), ds.persistentId()) editMetadata(File(action.json().getAbsolutePath), action.replace())
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.deleteMetadata) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) deleteMetadata(File(action.json().getAbsolutePath))
+      app dataset(ds.id(), ds.persistentId()) deleteMetadata (File(action.json().getAbsolutePath))
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.publish) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) publish(action.publishType())
+      app dataset(ds.id(), ds.persistentId()) publish (action.publishType())
     case (ds @ commandLine.dataset) :: (commandLine.dataset.deleteDraft) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) deleteDraft()
+      app dataset(ds.id(), ds.persistentId()) deleteDraft()
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.setCitationDateField) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) setCitationDateField(action.fieldId())
+      app dataset(ds.id(), ds.persistentId()) setCitationDateField (action.fieldId())
     case (ds @ commandLine.dataset) :: (commandLine.dataset.revertCitationDateField) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) revertCitationDateField()
+      app dataset(ds.id(), ds.persistentId()) revertCitationDateField()
     case (ds @ commandLine.dataset) :: (commandLine.dataset.listRoleAssignments) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) listRoleAssignments()
+      app dataset(ds.id(), ds.persistentId()) listRoleAssignments()
     case (ds @ commandLine.dataset) :: (commandLine.dataset.createPrivateUrl) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) createPrivateUrl()
+      app dataset(ds.id(), ds.persistentId()) createPrivateUrl()
     case (ds @ commandLine.dataset) :: (commandLine.dataset.getPrivateUrl) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) getPrivateUrl
+      app dataset(ds.id(), ds.persistentId()) getPrivateUrl
     case (ds @ commandLine.dataset) :: commandLine.dataset.deletePrivateUrl :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) deletePrivateUrl()
+      app dataset(ds.id(), ds.persistentId()) deletePrivateUrl()
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.addFile) :: Nil =>
       val categories = action.categories().map(c => s""""$c"""").mkString("[", ",", "]")
       val description = action.description()
@@ -138,21 +138,31 @@ object Command extends App with DebugEnhancedLogging {
 
       val json = s"""{"description":"$description","categories":$categories, "restrict":"$restrict"}"""
 
-      app dataset (ds.id(), ds.persistentId()) addFile (File(action.dataFile().getAbsolutePath), action.jsonMetadata.toOption.map(f => File(f.getAbsolutePath)).orElse(None), Some(json))
+      app dataset(ds.id(), ds.persistentId()) addFile(File(action.dataFile().getAbsolutePath), action.jsonMetadata.toOption.map(f => File(f.getAbsolutePath)).orElse(None), Some(json))
     case (ds @ commandLine.dataset) :: commandLine.dataset.submitForReview :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) submitForReview()
+      app dataset(ds.id(), ds.persistentId()) submitForReview()
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.returnToAuthor) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) returnToAuthor(action.reason())
+      app dataset(ds.id(), ds.persistentId()) returnToAuthor (action.reason())
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.link) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) link(action.dataverseAlias())
+      app dataset(ds.id(), ds.persistentId()) link (action.dataverseAlias())
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.getLocks) :: Nil =>
-      app dataset (ds.id(), ds.persistentId()) getLocks(action.lockType.toOption)
+      app dataset(ds.id(), ds.persistentId()) getLocks (action.lockType.toOption)
 
+    /*
+     * File commands
+     */
+    case (f @ commandLine.file) :: (commandLine.file.restrict) :: Nil =>
+      app file(f.id(), f.persistentId()) restrict(true)
+    case (f @ commandLine.file) :: (commandLine.file.unrestrict) :: Nil =>
+      app file(f.id(), f.persistentId()) restrict(false)
+    case (f @ commandLine.file) :: (action @ commandLine.file.replace) :: Nil =>
+      val categories = action.categories().map(c => s""""$c"""").mkString("[", ",", "]")
+      val description = action.description()
+      val restrict = action.restrict()
 
+      val json = s"""{"description":"$description","categories":$categories, "restrict":"$restrict"}"""
 
-      /*
-       * File commands
-       */
+      app file(f.id(), f.persistentId()) replaceFile(File(action.dataFile().getAbsolutePath), action.jsonMetadata.toOption.map(f => File(f.getAbsolutePath)).orElse(None), Some(json))
 
   }
 

@@ -27,4 +27,8 @@ class EasyDvnApp(configuration: Configuration)(implicit resultOutput: PrintStrea
     new Dataset(id, isPersistentId, configuration)
   }
 
+  def file(id: String, isPersistentId: Boolean): FileCommand = {
+    new FileCommand(id, isPersistentId, configuration)
+  }
+
 }
