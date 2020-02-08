@@ -36,15 +36,24 @@ class FileCommand (id: String, isPersistentId: Boolean, configuration: Configura
   }
 
   def uningest(): Try[String] = {
+    trace(())
     val path = if(isPersistentId) s"files/:persistentId/uningest?persistentId=$id"
                else s"files/$id/uningest"
     postJson(path)(200)()
   }
 
   def reingest(): Try[String] = {
+    trace(())
     val path = if(isPersistentId) s"files/:persistentId/reingest?persistentId=$id"
                else s"files/$id/reingest"
     postJson(path)(200)()
+  }
+
+  def getProvenance(inJsonFormat: Boolean): Try[String] = {
+    trace(inJsonFormat)
+    val path = if(isPersistentId) s"files/:persistentId/prov-${if(inJsonFormat) "json" else "freeform"}?persistentId=$id"
+               else s"files/$id/prov-${if(inJsonFormat) "json" else "freeform"}"
+    get(path, formatResponseAsJson = inJsonFormat)
   }
 
 }

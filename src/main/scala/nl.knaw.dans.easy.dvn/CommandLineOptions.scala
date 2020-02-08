@@ -460,6 +460,20 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     }
     addSubcommand(reingest)
 
+    /*
+     * Permission for this must first be turned on:
+     * curl -X PUT -d 'true' http://localhost:8080/api/admin/settings/:ProvCollectionEnabled
+     */
+    val getProvenance = new Subcommand("get-provenance") {
+      descr("Returns the provenance for this file")
+      val inJsonFormat: ScallopOption[Boolean] = opt("json",
+        descr = "Use JSON as output")
+    }
+    addSubcommand(getProvenance)
+
+    
+
+
   }
   addSubcommand(file)
   footer("")

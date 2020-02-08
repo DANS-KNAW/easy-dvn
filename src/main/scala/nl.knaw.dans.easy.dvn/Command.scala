@@ -167,6 +167,8 @@ object Command extends App with DebugEnhancedLogging {
       app file(f.id(), f.persistentId()) uningest()
     case (f @ commandLine.file) :: (commandLine.file.reingest) :: Nil =>
       app file(f.id(), f.persistentId()) reingest()
+    case (f @ commandLine.file) :: (action @ commandLine.file.getProvenance) :: Nil =>
+      app file(f.id(), f.persistentId()) getProvenance (action.inJsonFormat())
 
   }
 
