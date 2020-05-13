@@ -32,7 +32,7 @@
 
     <name>EASY Dvn</name>
     <url>https://github.com/DANS-KNAW/easy-dvn</url>
-    <description>Command-line tool for working with the Dataverse API</description>
+    <description>Command-line tool exploring the Dataverse API</description>
     <inceptionYear>2020</inceptionYear>
 
     <properties>

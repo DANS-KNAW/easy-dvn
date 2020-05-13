@@ -93,6 +93,15 @@ trait HttpSupport extends DebugEnhancedLogging{
     } yield s"Successfully POSTed: $body"
   }
 
+  protected def postText(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[String] = {
+    for {
+      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      _ = debug(s"Request URL = $uri")
+      response <- http("POST", uri, body, Map("Content-Type" -> "text/plain", "X-Dataverse-key" -> apiToken))
+      _ <- handleResponse(response, expectedStatus: _*)
+    } yield s"Successfully POSTed: $body"
+  }
+
   protected def put(subPath: String = null)(body: String = null): Try[String] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")

@@ -23,6 +23,7 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.language.reflectiveCalls
 import scala.util.Try
+import scala.language.postfixOps
 
 object Command extends App with DebugEnhancedLogging {
   type FeedBackMessage = String
@@ -40,43 +41,43 @@ object Command extends App with DebugEnhancedLogging {
      * Dataverse commands
      */
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.create) :: Nil =>
-      app dataverse (dv.id()) create (File(action.json().getAbsolutePath))
+      app dataverse (dv.alias()) create (File(action.json().getAbsolutePath))
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.view) :: Nil =>
-      app dataverse (dv.id()) view()
+      app dataverse (dv.alias()) view()
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.delete) :: Nil =>
-      app dataverse (dv.id()) delete()
+      app dataverse (dv.alias()) delete()
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.show) :: Nil =>
-      app dataverse (dv.id()) show()
+      app dataverse (dv.alias()) show()
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listRoles) :: Nil =>
-      app dataverse (dv.id()) listRoles()
+      app dataverse (dv.alias()) listRoles()
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listFacets) :: Nil =>
-      app dataverse (dv.id()) listFacets()
+      app dataverse (dv.alias()) listFacets()
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setFacets) :: Nil =>
-      app dataverse (dv.id()) setFacets (action.facets())
+      app dataverse (dv.alias()) setFacets (action.facets())
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.createRole) :: Nil =>
-      app dataverse (dv.id()) createRole (File(action.json().getAbsolutePath))
+      app dataverse (dv.alias()) createRole (File(action.json().getAbsolutePath))
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listRoleAssignments) :: Nil =>
-      app dataverse (dv.id()) listRoleAssignments()
+      app dataverse (dv.alias()) listRoleAssignments()
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setDefaultRole) :: Nil =>
-      app dataverse (dv.id()) setDefaultRole (action.role())
+      app dataverse (dv.alias()) setDefaultRole (action.role())
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.assignRole) :: Nil =>
-      app dataverse (dv.id()) assignRole (File(action.json().getAbsolutePath))
+      app dataverse (dv.alias()) assignRole (File(action.json().getAbsolutePath))
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.unassignRole) :: Nil =>
-      app dataverse (dv.id()) unassignRole (action.roleId())
+      app dataverse (dv.alias()) unassignRole (action.roleId())
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.listMetadataBlocks) :: Nil =>
-      app dataverse (dv.id()) listMetadataBocks()
+      app dataverse (dv.alias()) listMetadataBocks()
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setMetadataBlocks) :: Nil =>
-      app dataverse (dv.id()) setMetadataBlocks (action.metadataBlockIds())
+      app dataverse (dv.alias()) setMetadataBlocks (action.metadataBlockIds())
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.isMetadataBlocksRoot) :: Nil =>
-      app dataverse (dv.id()) isMetadataBlocksRoot
+      app dataverse (dv.alias()) isMetadataBlocksRoot
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.setMetadataBlocksRoot) :: Nil =>
-      app dataverse (dv.id()) setMetadataBlocksRoot (action.setRoot().toBoolean)
+      app dataverse (dv.alias()) setMetadataBlocksRoot (action.setRoot().toBoolean)
     case (dv @ commandLine.dataverse) :: (commandLine.dataverse.publish) :: Nil =>
-      app dataverse (dv.id()) publish()
+      app dataverse (dv.alias()) publish()
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.createDataset) :: Nil =>
-      app dataverse (dv.id()) createDataset (File(action.json().getAbsolutePath))
+      app dataverse (dv.alias()) createDataset (File(action.json().getAbsolutePath))
     case (dv @ commandLine.dataverse) :: (action @ commandLine.dataverse.importDataset) :: Nil =>
-      app dataverse (dv.id()) importDataset(File(action.importFile().getAbsolutePath), action.format() == "ddi", action.pid(), action.keepOnDraft())
+      app dataverse (dv.alias()) importDataset(File(action.importFile().getAbsolutePath), action.format() == "ddi", action.pid(), action.keepOnDraft())
 
     /*
      * Dataset commands
@@ -84,8 +85,8 @@ object Command extends App with DebugEnhancedLogging {
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.view) :: Nil =>
       val optVersion = if (action.latestPublished()) Some(":latest-published")
                        else if (action.latest()) Some(":latest")
-                       else if (action.draft()) Some(":draft")
-                       else action.version.toOption.orElse(None)
+                            else if (action.draft()) Some(":draft")
+                                 else action.version.toOption.orElse(None)
       app dataset(ds.id(), ds.persistentId()) view (optVersion)
     case (ds @ commandLine.dataset) :: (commandLine.dataset.delete) :: Nil =>
       app dataset(ds.id(), ds.persistentId()) delete()
@@ -96,20 +97,20 @@ object Command extends App with DebugEnhancedLogging {
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.listFiles) :: Nil =>
       val optVersion = if (action.latestPublished()) Some(":latest-published")
                        else if (action.latest()) Some(":latest")
-                       else if (action.draft()) Some(":draft")
-                       else action.version.toOption.orElse(None)
+                            else if (action.draft()) Some(":draft")
+                                 else action.version.toOption.orElse(None)
       app dataset(ds.id(), ds.persistentId()) listFiles (optVersion)
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.listMetadataBlocks) :: Nil =>
       val optVersion = if (action.latestPublished()) Some(":latest-published")
                        else if (action.latest()) Some(":latest")
-                       else if (action.draft()) Some(":draft")
-                       else action.version.toOption.orElse(None)
+                            else if (action.draft()) Some(":draft")
+                                 else action.version.toOption.orElse(None)
       app dataset(ds.id(), ds.persistentId()) listMetadataBlocks(optVersion, action.blockName.toOption)
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.updateMetadata) :: Nil =>
       val optVersion = if (action.latestPublished()) Some(":latest-published")
                        else if (action.latest()) Some(":latest")
-                       else if (action.draft()) Some(":draft")
-                       else action.version.toOption.orElse(None)
+                            else if (action.draft()) Some(":draft")
+                                 else action.version.toOption.orElse(None)
       app dataset(ds.id(), ds.persistentId()) updateMetadata(File(action.json().getAbsolutePath), optVersion)
     case (ds @ commandLine.dataset) :: (action @ commandLine.dataset.editMetadata) :: Nil =>
       app dataset(ds.id(), ds.persistentId()) editMetadata(File(action.json().getAbsolutePath), action.replace())
@@ -152,9 +153,9 @@ object Command extends App with DebugEnhancedLogging {
      * File commands
      */
     case (f @ commandLine.file) :: (commandLine.file.restrict) :: Nil =>
-      app file(f.id(), f.persistentId()) restrict(true)
+      app file(f.id(), f.persistentId()) restrict (true)
     case (f @ commandLine.file) :: (commandLine.file.unrestrict) :: Nil =>
-      app file(f.id(), f.persistentId()) restrict(false)
+      app file(f.id(), f.persistentId()) restrict (false)
     case (f @ commandLine.file) :: (action @ commandLine.file.replace) :: Nil =>
       val categories = action.categories().map(c => s""""$c"""").mkString("[", ",", "]")
       val description = action.description()
@@ -169,7 +170,6 @@ object Command extends App with DebugEnhancedLogging {
       app file(f.id(), f.persistentId()) reingest()
     case (f @ commandLine.file) :: (action @ commandLine.file.getProvenance) :: Nil =>
       app file(f.id(), f.persistentId()) getProvenance (action.inJsonFormat())
-
   }
 
   result.doIfSuccess(msg => Console.err.println(s"OK: $msg"))

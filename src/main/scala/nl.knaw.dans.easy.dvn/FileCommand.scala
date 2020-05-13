@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2020 DANS - Data Archiving and Networked Services (info@dans.knaw.nl)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package nl.knaw.dans.easy.dvn
 
 import java.io.PrintStream
@@ -8,7 +23,7 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.Try
 
-class FileCommand (id: String, isPersistentId: Boolean, configuration: Configuration)(implicit resultOutput: PrintStream) extends HttpSupport with DebugEnhancedLogging {
+class FileCommand(id: String, isPersistentId: Boolean, configuration: Configuration)(implicit resultOutput: PrintStream) extends HttpSupport with DebugEnhancedLogging {
   protected val connectionTimeout: Int = configuration.connectionTimeout
   protected val readTimeout: Int = configuration.readTimeout
   protected val baseUrl: URI = configuration.baseUrl
@@ -17,19 +32,20 @@ class FileCommand (id: String, isPersistentId: Boolean, configuration: Configura
 
   def restrict(doRestict: Boolean): Try[String] = {
     trace(doRestict)
-    val path = if(isPersistentId) s"files/:persistentId/restrict?persistentId=$id"
+    val path = if (isPersistentId) s"files/:persistentId/restrict?persistentId=$id"
                else s"files/$id/restrict"
     put(path)(doRestict.toString)
   }
 
   def replace(replacementData: File, replacementJsonMetadata: Option[File], jsonString: Option[String]): Try[String] = {
     trace(replacementData, replacementJsonMetadata, jsonString)
-    val path = if(isPersistentId) s"files/:persistentId/replace?persistentId=$id"
+    val path = if (isPersistentId) s"files/:persistentId/replace?persistentId=$id"
                else s"files/$id/replace"
     replacementJsonMetadata.map {
-      f => tryReadFileToString(f).flatMap {
-        s => postFile(path, replacementData, Some(s))(200, formatResponseAsJson = true)
-      }
+      f =>
+        tryReadFileToString(f).flatMap {
+          s => postFile(path, replacementData, Some(s))(200, formatResponseAsJson = true)
+        }
     }.getOrElse {
       postFile(path, replacementData, jsonString)(200, formatResponseAsJson = true)
     }
@@ -37,23 +53,43 @@ class FileCommand (id: String, isPersistentId: Boolean, configuration: Configura
 
   def uningest(): Try[String] = {
     trace(())
-    val path = if(isPersistentId) s"files/:persistentId/uningest?persistentId=$id"
+    val path = if (isPersistentId) s"files/:persistentId/uningest?persistentId=$id"
                else s"files/$id/uningest"
     postJson(path)(200)()
   }
 
   def reingest(): Try[String] = {
     trace(())
-    val path = if(isPersistentId) s"files/:persistentId/reingest?persistentId=$id"
+    val path = if (isPersistentId) s"files/:persistentId/reingest?persistentId=$id"
                else s"files/$id/reingest"
     postJson(path)(200)()
   }
 
   def getProvenance(inJsonFormat: Boolean): Try[String] = {
     trace(inJsonFormat)
-    val path = if(isPersistentId) s"files/:persistentId/prov-${if(inJsonFormat) "json" else "freeform"}?persistentId=$id"
-               else s"files/$id/prov-${if(inJsonFormat) "json" else "freeform"}"
+    val path = if (isPersistentId) s"files/:persistentId/prov-${
+      if (inJsonFormat) "json"
+      else "freeform"
+    }?persistentId=$id"
+               else s"files/$id/prov-${
+                 if (inJsonFormat) "json"
+                 else "freeform"
+               }"
     get(path, formatResponseAsJson = inJsonFormat)
   }
 
+  def setProvenacne(prov: String, inJsonFormat: Boolean): Try[String] = {
+    trace(prov, inJsonFormat)
+    val path = if (isPersistentId) s"files/:persistentId/prov-${
+      if (inJsonFormat) "json"
+      else "freeform"
+    }?persistentId=$id"
+               else s"files/$id/prov-${
+                 if (inJsonFormat) "json"
+                 else "freeform"
+               }"
+
+    if (inJsonFormat) postJson(path)(201)(prov)
+    else postText(path)(201)(prov)
+  }
 }
