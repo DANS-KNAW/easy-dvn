@@ -105,8 +105,12 @@ ARGUMENTS
 EXAMPLES
 --------
 
-        easy-dvn dataverse foo view # View a description of the dataverse with alias 'foo'
-        easy-dvn dataverse create        
+        # View a description of the dataverse with alias 'foo'
+        easy-dvn dataverse foo view 
+        
+        # Create a new dataverse the 'root' dataverse using the properties provided in new-dv.json
+        # Example new-dv.json is found at http://guides.dataverse.org/en/latest/api/native-api.html#id19 
+        easy-dvn dataverse root create --json new-dv.json        
        
 
 INSTALLATION AND CONFIGURATION
