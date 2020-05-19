@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-BINPATH=`readlink -f $0`
+TYPE_OF_OS=$(uname)
+
+if [[ "$TYPE_OF_OS" == "Linux" ]]; then
+  BINPATH=`readlink -f $0`
+else
+  BINPATH=$(cd $(dirname $0) && pwd -P)/$(basename $0)
+fi
 APPHOME=`dirname \`dirname $BINPATH \``
 MODULE=`basename $APPHOME`
 LOGBACK_HOME=$HOME/logback.xml

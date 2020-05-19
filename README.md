@@ -101,11 +101,48 @@ ARGUMENTS
          reingest         Reingest a tabular file
          get-provenance   Returns the provenance for this file
        ------------------
+       
+EXAMPLES
+--------
+
+        easy-dvn dataverse foo view # View a description of the dataverse with alias 'foo'
+        easy-dvn dataverse create        
+       
 
 INSTALLATION AND CONFIGURATION
 ------------------------------
-Currently this project is build only as an RPM package for RHEL7/CentOS7 and later. The RPM will install the binaries to
-`/opt/dans.knaw.nl/easy-dvn`, the configuration files to `/etc/opt/dans.knaw.nl/easy-dvn`.
+1. Build the project
+2. Unarchive the .tar.gz file from the `target` folder to a location of your choice. This results in an installation directory.
+3. Add the `<installation directory>/bin` your path.
+4. Log on to Dataverse and copy your API token
+5. Configure the correct Dataverse URL and API in the file `<installation directory>/cfg/application.properties`.
+6. Test your installation by opening a terminal prompt and:
+   
+        easy-dvn dataverse root view
+   This should result in a JSON object describing the root dataverse, something like:
+   
+        {
+          "status": "OK",
+          "data": {
+            "id": 1,
+            "alias": "root",
+            "name": "Root",
+            "dataverseContacts": [
+              {
+                "displayOrder": 0,
+                "contactEmail": "root@mailinator.com"
+              }
+            ],
+            "permissionRoot": true,
+            "description": "The root dataverse.",
+            "dataverseType": "UNCATEGORIZED",
+            "creationDate": "2020-05-18T15:09:52Z"
+          }
+        }OK: Retrieved URL: http://localhost:8080/api/v1/dataverses/root
+   If you get instead the following message, your API token may be incorrect or belong to a user with insufficient privileges:
+   
+        ERROR: Command could not be executed. Server returned: HTTP/1.1 401 Unauthorized
+  
 
 BUILDING FROM SOURCE
 --------------------
@@ -121,6 +158,7 @@ Steps:
     cd easy-dvn 
     mvn clean install
 
-If the `rpm` executable is found at `/usr/local/bin/rpm`, the build profile that includes the RPM 
-packaging will be activated. If `rpm` is available, but at a different path, then activate it by using
-Maven's `-P` switch: `mvn -Pprm install`.
+By default only a `tar.gz` package will be built, as this program is mainly intended for use on a Mac. If you want to build an RPM 
+package you have to activate the RPM profile explicitly:
+
+    mvn -Pprm install

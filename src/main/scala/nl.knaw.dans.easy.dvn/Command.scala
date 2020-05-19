@@ -22,7 +22,7 @@ import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.language.reflectiveCalls
-import scala.util.Try
+import scala.util.{ Failure, Try }
 import scala.language.postfixOps
 
 object Command extends App with DebugEnhancedLogging {
@@ -170,6 +170,11 @@ object Command extends App with DebugEnhancedLogging {
       app file(f.id(), f.persistentId()) reingest()
     case (f @ commandLine.file) :: (action @ commandLine.file.getProvenance) :: Nil =>
       app file(f.id(), f.persistentId()) getProvenance (action.inJsonFormat())
+
+    /**
+     * Hack fix to silence the compiler about incomplete matching
+     */
+    case _ => Failure(new RuntimeException(s"Unkown command: $commandLine"))
   }
 
   result.doIfSuccess(msg => Console.err.println(s"OK: $msg"))
